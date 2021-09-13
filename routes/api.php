@@ -23,6 +23,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Route::get('products/{producto}', [\App\Http\Controllers\ProductController::class, 'show']);
 // Route::delete('products/{producto}', [\App\Http\Controllers\ProductController::class, 'destroy']);
 // Route::put('products/{producto}', [\App\Http\Controllers\ProductController::class, 'update']);
+
 Route::apiResource('products', \App\Http\Controllers\ProductController::class);
 Route::put('like/{producto}', [\App\Http\Controllers\ProductController::class, 'set_like'])->name('like');
 Route::put('dislike/{producto}', [\App\Http\Controllers\ProductController::class, 'set_dislike'])->name('dislike');
+Route::put('set_image/{product}', [\App\Http\Controllers\ProductController::class, 'set_image'])->name('set_image');

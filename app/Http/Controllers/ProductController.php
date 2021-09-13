@@ -89,7 +89,7 @@ class ProductController extends Controller
     public function update(UpdateProductRequest $request, $id) {
         
         $input = $request->all();
-        $product = Product::find($id);
+        $product = Product::findOrFail($id);
         $product->update($input);
         return response()->json(['success' => True, 'message' => 'Actualizacion exitosa'], 200);
     }
@@ -104,9 +104,27 @@ class ProductController extends Controller
 
     public function set_dislike($id) {
 
-        $product = Product::find($id);
+        $product = Product::findOrFail($id);
         $product->dislike = $product->dislike + 1;
         $product->save();
         return response()->json(['success' => True, 'message' => 'dislike exitoso'], 200);
     }
+
+    public function set_image(Request $request, $id) {
+
+        $product = Product::findOrFail($id);
+        $product->url_image = $this->upload_image($request->image, $id);
+        $product->save();
+        return response()->json(['success' => True, 'message' => 'image upload successfully'], 200);
+    }
+
+    private function upload_image($file, $id) {
+
+        $file_name = time() . "_{$id}." . $file->getClientOriginalExtension(); # Nombre unico de la imagen
+        $file->move(\public_path('images'), $file_name);
+        return $file_name;
+
+    }
+
+
 }
