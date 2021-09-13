@@ -63,8 +63,7 @@ class ProductController extends Controller
      *  Eliminación de un producto de la base
      *  correspondiente al id 
      */
-    public function destroy($id)
-    {
+    public function destroy($id) {
         try {
             $deleted = Product::destroy($id);
             if ($deleted == True) {
@@ -72,30 +71,42 @@ class ProductController extends Controller
             } else {
                 return response()->json(['success'=> False, 'message'=> 'Error al intentar eliminar el producto.'], 404);
             }
-
         } catch (\Exception $error){
             return response()->json(['success'=> False, 'message'=> $error->getMessage()], 500);
         }
     }
 
 
-    public function store(CreateProductRequest $request)
-    {
+    public function store(CreateProductRequest $request) {
+
         $input = $request->all();
         $input['user_id'] = 1;
         $product = Product::create($input);
-      
         return response()->json(['success' => True, 'message' => 'insercion exitosa'], 201);
     }
 
 
-    public function update(UpdateProductRequest $request, $id)
-    {
+    public function update(UpdateProductRequest $request, $id) {
+        
         $input = $request->all();
         $product = Product::find($id);
         $product->update($input);
         return response()->json(['success' => True, 'message' => 'Actualizacion exitosa'], 200);
     }
 
-    
+    public function set_like($id) {
+
+        $product = Product::find($id);
+        $product->like = $product->like + 1;
+        $product->save();
+        return response()->json(['success' => True, 'message' => 'like exitoso'], 200);
+    }
+
+    public function set_dislike($id) {
+
+        $product = Product::find($id);
+        $product->dislike = $product->dislike + 1;
+        $product->save();
+        return response()->json(['success' => True, 'message' => 'dislike exitoso'], 200);
+    }
 }
