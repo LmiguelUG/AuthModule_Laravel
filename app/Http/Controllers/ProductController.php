@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Http\Requests\CreateProductRequest;
+use App\Http\Requests\UpdateProductRequest;
 
 class ProductController extends Controller
 {
@@ -17,23 +19,22 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {   
-        try {
-            $input  = $request->all();
 
-            # Verificar si la request trae un parametro 'filter'
-            if (isset($input['filter'])) 
-            { 
-                $filter = $input['filter'];
-                $products = Product::with('user')->where("code", "=", $filter)->orwhere("name", "like", "%{$filter}%")->paginate(5);
-            }
-            
-            # Mostrar todos los productos (sin filtrar)
-            $products = Product::with('user')->paginate(10);
-            return response()->json(['success' => True, 'Products' => $products], 200);
-
-        } catch (\Exception $error){
-            return response()->json(['success'=> False, 'message'=> $error->getMessage()], 500);
+        $input  = $request->all();
+        # Verificar si la request trae un parametro 'filter'
+        if (isset($input['filter'])) 
+        { 
+            $filter = $input['filter'];
+            $products = Product::with('user')->where("code", "=", $filter)->orwhere("name", "like", "%{$filter}%")->paginate(5);
         }
+        
+        # Mostrar todos los productos (sin filtrar)
+        $products = Product::with('user')->paginate(10);
+        return response()->json(['success' => True, 'Products' => $products], 200);
+
+
+        return response()->json(['success'=> False, 'message'=> $error->getMessage()], 500);
+
     }
 
     
@@ -78,21 +79,22 @@ class ProductController extends Controller
     }
 
 
-    /**
-     * 
-     */
-    public function store(Request $request)
+    public function store(CreateProductRequest $request)
     {
-        //
+        $input = $request->all();
+        $input['user_id'] = 1;
+        $product = Product::create($input);
+      
+        return response()->json(['success' => True, 'message' => 'insercion exitosa'], 201);
     }
 
 
-    /**
-     * 
-     */
-    public function update(Request $request, $id)
+    public function update(UpdateProductRequest $request, $id)
     {
-        //
+        $input = $request->all();
+        $product = Product::find($id);
+        $product->update($input);
+        return response()->json(['success' => True, 'message' => 'Actualizacion exitosa'], 200);
     }
 
     
