@@ -31,10 +31,6 @@ class ProductController extends Controller
         # Mostrar todos los productos (sin filtrar)
         $products = Product::with('user')->paginate(10);
         return response()->json(['success' => True, 'Products' => $products], 200);
-
-
-        return response()->json(['success'=> False, 'message'=> $error->getMessage()], 500);
-
     }
 
     
@@ -42,21 +38,10 @@ class ProductController extends Controller
      *  Obtención de un producto de la base de datos 
      *  por su identificador 'id'. 
      */
-    public function show($id)
-    {
-        try {
-            $product = Product::with('user')->find($id);
-
-            # Verificar si se obtiene algún producto con el 'id' dado
-            if ($product) {
-                return response()->json(['success' => True, 'Product' => $product], 200);
-            } else {
-                return response()->json(['success' => False, 'message' => 'Producto no encontrado'], 404);
-            }  
-
-        } catch (\Exception $error){
-            return response()->json(['success'=> False, 'message'=> $error->getMessage()], 500);
-        } 
+    public function show($id)   {   
+           
+        $product = Product::with('user')->findOrFail($id);
+        return response()->json(['success' => True, 'Product' => $product], 200);
     }
 
     /**
@@ -64,16 +49,10 @@ class ProductController extends Controller
      *  correspondiente al id 
      */
     public function destroy($id) {
-        try {
-            $deleted = Product::destroy($id);
-            if ($deleted == True) {
-                return response()->json(['success'=> True,  'message'=> 'Product eliminado exitosamente.'], 204);
-            } else {
-                return response()->json(['success'=> False, 'message'=> 'Error al intentar eliminar el producto.'], 404);
-            }
-        } catch (\Exception $error){
-            return response()->json(['success'=> False, 'message'=> $error->getMessage()], 500);
-        }
+        
+        $deleted = Product::destroy($id);
+        return response()->json(['success'=> True,  'message'=> 'Product eliminado exitosamente.'], 204);
+
     }
 
 
@@ -96,7 +75,7 @@ class ProductController extends Controller
 
     public function set_like($id) {
 
-        $product = Product::find($id);
+        $product = Product::findOrFail($id);
         $product->like = $product->like + 1;
         $product->save();
         return response()->json(['success' => True, 'message' => 'like exitoso'], 200);

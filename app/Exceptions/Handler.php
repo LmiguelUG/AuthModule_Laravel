@@ -3,6 +3,12 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Dotenv\Exception\ValidationEException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -34,8 +40,29 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        $this->renderable(function (AuthenticationException $e, $request) {
+            return response()->json(["status" => false, "error" => "Authentication Error"], 401);
         });
+
+        $this->renderable(function (AuthorizationException $e, $request) {
+            return response()->json(["status" => false, "error" => "Authorization Error, you don't have access permission"], 403);
+        });
+
+        $this->renderable(function (HttpException $e, $request) {
+            return response()->json(["status" => false, "error" => "Path error"], 404);
+        });
+      
+        $this->renderable(function (QueryException $e, $request) {
+            return response()->json(["status" => false, "error" => "Database query error", $exception->getMessage()], 500);
+        });
+
+        $this->renderable(function (ModelNotFoundException $e, $request) {
+            return response()->json(["status" => false, "error" => "Model error"], 400);
+        });
+
+        $this->renderable(function (RouteNotFoundException $e, $request) {
+            return response()->json(["status" => false, "error" => "Path error"], 404);
+        });
+
     }
 }
